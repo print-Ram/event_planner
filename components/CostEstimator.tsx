@@ -1,256 +1,267 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Calculator, CheckCircle2, ArrowRight } from 'lucide-react';
-import SingleLineRangoli from './SingleLineRangoli';
+import React, { useState, useMemo } from 'react';
+import { Calculator, Sparkles, Users, Utensils, Camera, Music, Check, ArrowRight, ShieldAlert, Award } from 'lucide-react';
 
 interface CostEstimatorProps {
   preselectedService?: string;
-  onOpenBookingWithEstimate: (service: string, guests: number, total: number) => void;
+  onOpenBookingWithEstimate: (service: string, guests: number, estimate: number) => void;
 }
 
-export default function CostEstimator({ preselectedService, onOpenBookingWithEstimate }: CostEstimatorProps) {
-  const [guests, setGuests] = useState<number>(200);
-  const [selectedService, setSelectedService] = useState<string>(preselectedService || 'Weddings');
-  const [themeStyle, setThemeStyle] = useState<string>('single-line-rangoli');
-  const [addons, setAddons] = useState<{ [key: string]: boolean }>({
-    singleLineRangoli: true,
-    nadaswaram: true,
-    etikoppakaGifts: false,
-    bananaLeafFeast: true,
-  });
+export default function CostEstimator({
+  preselectedService = 'Grand Weddings',
+  onOpenBookingWithEstimate,
+}: CostEstimatorProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>(preselectedService);
+  const [guestCount, setGuestCount] = useState<number>(200);
+  const [decorTier, setDecorTier] = useState<'standard' | 'deluxe' | 'royal'>('deluxe');
+  const [includeCatering, setIncludeCatering] = useState<boolean>(false);
+  const [includePhotography, setIncludePhotography] = useState<boolean>(true);
+  const [includeEntertainment, setIncludeEntertainment] = useState<boolean>(false);
 
-  const servicesList = [
-    'Weddings',
-    'Wedding and engagement',
-    'Event decor design',
-    'Decorations',
-    'Catering',
-    'Birthday party planning',
-    'Childrens party planning',
-    'Baby shower planning',
-    'Anniversary party planning',
-    'Corporate and conference',
-    'School event',
-    'Theme parties',
-    'Party planning',
-    'Private event planning',
+  // Realistic Town Market Base Rates (Madanapalle, Tirupati, Punganur, Kothakota)
+  const eventOptions = [
+    { id: 'Weddings', name: 'Grand Weddings', base: 32000, perGuest: 180, tag: '₹60K - ₹1.2L typical' },
+    { id: 'Birthdays', name: 'Joyous Birthdays', base: 12000, perGuest: 80, tag: '₹18K - ₹45K typical' },
+    { id: 'Private Events', name: 'Private Celebrations', base: 15000, perGuest: 100, tag: '₹22K - ₹55K typical' },
+    { id: 'House Warming', name: 'House Warming (Gruhapravesam)', base: 18000, perGuest: 110, tag: '₹30K - ₹75K typical' },
+    { id: 'Catering', name: 'Authentic Catering', base: 8000, perGuest: 170, tag: '₹160/plate feast' },
+    { id: 'School Events', name: 'School & College Fests', base: 22000, perGuest: 80, tag: '₹45K - ₹95K typical' },
+    { id: 'Theme Parties', name: 'Creative Theme Parties', base: 18000, perGuest: 110, tag: '₹32K - ₹72K typical' },
   ];
 
-  const basePrices: { [key: string]: number } = {
-    'Weddings': 85000,
-    'Wedding and engagement': 65000,
-    'Event decor design': 45000,
-    'Decorations': 35000,
-    'Catering': 50000,
-    'Birthday party planning': 25000,
-    'Childrens party planning': 20000,
-    'Baby shower planning': 22000,
-    'Anniversary party planning': 30000,
-    'Corporate and conference': 75000,
-    'School event': 40000,
-    'Theme parties': 35000,
-    'Party planning': 25000,
-    'Private event planning': 60000,
-  };
+  const calculatedValue = useMemo(() => {
+    const matched = eventOptions.find((e) => e.name === selectedCategory || e.id === selectedCategory) || eventOptions[0];
+    let total = matched.base + guestCount * matched.perGuest;
 
-  const perGuestRate = 250;
+    if (decorTier === 'deluxe') total *= 1.2;
+    if (decorTier === 'royal') total *= 1.4;
 
-  const themeMultipliers: { [key: string]: number } = {
-    'single-line-rangoli': 1.15,
-    'kondapalli-royal': 1.25,
-    'lotus-mandapam': 1.20,
-    'village-traditional': 1.0,
-  };
+    if (includeCatering) total += guestCount * 140;
+    if (includePhotography) total += 12000;
+    if (includeEntertainment) total += 8000;
 
-  const addonPrices: { [key: string]: number } = {
-    singleLineRangoli: 15000,
-    nadaswaram: 18000,
-    etikoppakaGifts: 12000,
-    bananaLeafFeast: 25000,
-  };
-
-  const calculateTotal = () => {
-    const base = basePrices[selectedService] || 35000;
-    const guestCost = guests * perGuestRate;
-    const multiplier = themeMultipliers[themeStyle] || 1.0;
-    let addonsTotal = 0;
-    Object.keys(addons).forEach((k) => {
-      if (addons[k]) addonsTotal += addonPrices[k];
-    });
-
-    return Math.round((base + guestCost) * multiplier + addonsTotal);
-  };
-
-  const totalCost = calculateTotal();
-
-  const toggleAddon = (key: string) => {
-    setAddons((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+    return Math.round(total);
+  }, [selectedCategory, guestCount, decorTier, includeCatering, includePhotography, includeEntertainment]);
 
   return (
-    <section id="estimator" className="py-24 relative overflow-hidden bg-wedding-ivory border-t border-wedding-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="estimator" className="py-24 bg-gradient-to-b from-[#FFFDF7] via-[#FAF4E8] to-[#FFFDF7] relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wedding-marigold/15 border border-wedding-marigold/40 text-wedding-kumkum text-xs font-bold mb-4">
-            <Calculator className="w-4 h-4" />
-            <span>Instant Transparent Pricing</span>
+        {/* Section Title */}
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wedding-marigold/15 text-wedding-amber text-xs font-extrabold border border-wedding-marigold/30">
+            <Calculator className="w-4 h-4 text-wedding-amber" />
+            <span>Town-Friendly Realistic Event Budget Estimator</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-wedding-text">
-            Event Package <span className="kumkum-text">Cost Estimator</span>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-wedding-text tracking-tight">
+            Visualize Your <span className="kumkum-text">Celebration Budget</span>
           </h2>
-          <p className="mt-4 text-wedding-muted text-sm sm:text-base font-medium">
-            Customize guest count, village theme style, and add-on services to generate a real-time price estimate for Sri Ram Events.
+
+          <p className="text-base text-wedding-muted font-medium">
+            Realistic, common-man friendly pricing tailored for Madanapalle, Tirupati, Punganur & surrounding towns. Every package is customized to your exact needs.
           </p>
-          <SingleLineRangoli variant="divider" color="#B80D22" className="my-2" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
           
-          {/* Form */}
-          <div className="lg:col-span-7 wedding-panel p-6 sm:p-8 rounded-3xl border border-wedding-border space-y-6">
+          {/* Left Column: Estimator Controls */}
+          <div className="lg:col-span-7 wedding-card rounded-3xl p-6 sm:p-8 space-y-7 border border-wedding-border shadow-lg">
             
-            <div>
-              <label className="block text-xs font-extrabold text-wedding-text uppercase tracking-wider mb-2">
-                1. Select Event Service (14 Options)
+            {/* Step 1: Select Event Category */}
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-wider text-wedding-kumkum flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-wedding-ruby" />
+                <span>1. Select Event Category</span>
               </label>
-              <select
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="w-full py-3 px-4 rounded-xl bg-white border border-wedding-border text-wedding-text font-bold text-sm focus:border-wedding-kumkum focus:outline-none"
-              >
-                {servicesList.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {eventOptions.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(opt.name)}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold text-left transition-all ${
+                      selectedCategory === opt.name
+                        ? 'bg-wedding-kumkum text-white shadow-md border-wedding-kumkum'
+                        : 'bg-wedding-ivory border border-wedding-border text-wedding-text hover:border-wedding-kumkum'
+                    }`}
+                  >
+                    <div>{opt.name}</div>
+                    <div className={`text-[10px] ${selectedCategory === opt.name ? 'text-amber-200' : 'text-wedding-muted'}`}>
+                      {opt.tag}
+                    </div>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-xs font-extrabold text-wedding-text uppercase tracking-wider">
-                  2. Expected Guest Count
+            {/* Step 2: Guest Count Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-black uppercase tracking-wider text-wedding-kumkum flex items-center gap-2">
+                  <Users className="w-4 h-4 text-wedding-marigold" />
+                  <span>2. Expected Guest Count</span>
                 </label>
-                <span className="text-sm font-black text-wedding-kumkum px-3 py-1 rounded-lg bg-wedding-cream border border-wedding-border">
-                  {guests} Guests
+                <span className="text-base font-black text-wedding-kumkum px-3 py-1 bg-wedding-kumkum/10 rounded-lg">
+                  {guestCount} Guests
                 </span>
               </div>
+
               <input
                 type="range"
-                min={25}
-                max={2500}
-                step={25}
-                value={guests}
-                onChange={(e) => setGuests(parseInt(e.target.value))}
-                className="w-full accent-wedding-kumkum h-2 rounded-lg bg-gray-200 cursor-pointer"
+                min="50"
+                max="800"
+                step="25"
+                value={guestCount}
+                onChange={(e) => setGuestCount(Number(e.target.value))}
+                className="w-full h-2.5 bg-wedding-border rounded-lg appearance-none cursor-pointer accent-wedding-kumkum"
               />
+              <div className="flex justify-between text-[11px] font-bold text-wedding-muted">
+                <span>50 Intimate</span>
+                <span>200 Typical</span>
+                <span>500 Grand</span>
+                <span>800 Large</span>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-extrabold text-wedding-text uppercase tracking-wider mb-3">
-                3. Choose Event Theme Style
+            {/* Step 3: Decoration Tier */}
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-wider text-wedding-kumkum flex items-center gap-2">
+                <Award className="w-4 h-4 text-wedding-turmeric" />
+                <span>3. Decor Complexity</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+
+              <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: 'single-line-rangoli', name: 'Hand-Drawn Line Rangoli', desc: 'Single-line floor motifs', badge: '+15%' },
-                  { id: 'kondapalli-royal', name: 'Royal Kondapalli Koluvu', desc: '5-tier doll exhibits', badge: '+25%' },
-                  { id: 'lotus-mandapam', name: 'Ethereal Lotus Mandapam', desc: 'Fresh floral lotus stages', badge: '+20%' },
-                  { id: 'village-traditional', name: 'Village Traditional Andhra', desc: 'Marigold & Banana Leaf decor', badge: 'Base' },
-                ].map((th) => (
-                  <div
-                    key={th.id}
-                    onClick={() => setThemeStyle(th.id)}
-                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                      themeStyle === th.id
-                        ? 'bg-wedding-cream border-wedding-kumkum shadow-sm'
-                        : 'bg-white border-wedding-border hover:border-wedding-kumkum'
+                  { id: 'standard', name: 'Classic Festive', sub: 'Essential Floral & Backdrop' },
+                  { id: 'deluxe', name: 'Deluxe Heritage', sub: 'Floral Mandapam & Stage' },
+                  { id: 'royal', name: 'Grand Royal', sub: 'Bespoke Lighting & Decor' },
+                ].map((tier) => (
+                  <button
+                    key={tier.id}
+                    type="button"
+                    onClick={() => setDecorTier(tier.id as 'standard' | 'deluxe' | 'royal')}
+                    className={`p-3 rounded-2xl border text-center transition-all ${
+                      decorTier === tier.id
+                        ? 'bg-wedding-ivory border-wedding-kumkum ring-2 ring-wedding-kumkum/20 shadow-sm'
+                        : 'bg-white border-wedding-border hover:border-wedding-kumkum/40'
                     }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-wedding-text">{th.name}</span>
-                      <span className="text-[10px] font-mono text-wedding-kumkum font-bold">{th.badge}</span>
-                    </div>
-                    <p className="text-[11px] text-wedding-muted mt-1 font-medium">{th.desc}</p>
-                  </div>
+                    <div className="text-xs font-black text-wedding-text">{tier.name}</div>
+                    <div className="text-[10px] font-semibold text-wedding-muted">{tier.sub}</div>
+                  </button>
                 ))}
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-extrabold text-wedding-text uppercase tracking-wider mb-3">
-                4. Traditional Add-On Services
+            {/* Step 4: Additional Service Add-ons */}
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-wider text-wedding-kumkum">
+                4. Optional Add-on Services
               </label>
-              <div className="space-y-2.5">
-                {[
-                  { key: 'singleLineRangoli', title: 'Hand-Drawn Line Rangoli Entrance Art', price: '₹15,000' },
-                  { key: 'nadaswaram', title: 'Live Nadaswaram & Talam Troupe', price: '₹18,000' },
-                  { key: 'etikoppakaGifts', title: 'Etikoppaka Toy Return Gift Hampers', price: '₹12,000' },
-                  { key: 'bananaLeafFeast', title: 'Traditional Banana Leaf Catering Setup', price: '₹25,000' },
-                ].map((item) => (
-                  <div
-                    key={item.key}
-                    onClick={() => toggleAddon(item.key)}
-                    className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                      addons[item.key]
-                        ? 'bg-wedding-cream border-wedding-kumkum text-wedding-text'
-                        : 'bg-white border-wedding-border text-wedding-muted hover:border-wedding-kumkum'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center ${
-                        addons[item.key] ? 'bg-wedding-kumkum border-wedding-kumkum text-white' : 'border-gray-400'
-                      }`}>
-                        {addons[item.key] && <CheckCircle2 className="w-3.5 h-3.5" />}
-                      </div>
-                      <span className="text-xs font-bold text-wedding-text">{item.title}</span>
-                    </div>
-                    <span className="text-xs font-extrabold text-wedding-kumkum">{item.price}</span>
-                  </div>
-                ))}
+
+              <div className="grid sm:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIncludeCatering(!includeCatering)}
+                  className={`p-3 rounded-xl border flex items-center gap-2.5 text-xs font-bold transition-all ${
+                    includeCatering
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-900'
+                      : 'bg-white border-wedding-border text-wedding-muted'
+                  }`}
+                >
+                  <Utensils className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>Banana Leaf Feast (+₹140/head)</span>
+                  {includeCatering && <Check className="w-3.5 h-3.5 ml-auto text-emerald-600" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIncludePhotography(!includePhotography)}
+                  className={`p-3 rounded-xl border flex items-center gap-2.5 text-xs font-bold transition-all ${
+                    includePhotography
+                      ? 'bg-amber-50 border-amber-500 text-amber-900'
+                      : 'bg-white border-wedding-border text-wedding-muted'
+                  }`}
+                >
+                  <Camera className="w-4 h-4 shrink-0 text-amber-600" />
+                  <span>Photo & Video (+₹12K)</span>
+                  {includePhotography && <Check className="w-3.5 h-3.5 ml-auto text-amber-600" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIncludeEntertainment(!includeEntertainment)}
+                  className={`p-3 rounded-xl border flex items-center gap-2.5 text-xs font-bold transition-all ${
+                    includeEntertainment
+                      ? 'bg-purple-50 border-purple-500 text-purple-900'
+                      : 'bg-white border-wedding-border text-wedding-muted'
+                  }`}
+                >
+                  <Music className="w-4 h-4 shrink-0 text-purple-600" />
+                  <span>Sound & DJ (+₹8K)</span>
+                  {includeEntertainment && <Check className="w-3.5 h-3.5 ml-auto text-purple-600" />}
+                </button>
               </div>
             </div>
 
           </div>
 
-          {/* Pricing Summary */}
-          <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-wedding-border shadow-xl relative sticky top-28 space-y-6">
+          {/* Right Column: Display Struck-Out Estimate & Quote CTA */}
+          <div className="lg:col-span-5 wedding-card rounded-3xl p-6 sm:p-8 space-y-6 border border-wedding-turmeric/60 shadow-xl bg-gradient-to-b from-[#FFFDF7] to-[#FAF4E8]">
             
-            <div className="flex items-center justify-between pb-4 border-b border-wedding-border">
-              <h3 className="text-lg font-black text-wedding-text">Estimated Investment</h3>
-              <span className="text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-1 rounded-full bg-wedding-marigold/20 text-wedding-kumkum">
-                Sri Ram Quote
+            <div className="flex items-center justify-between border-b border-wedding-border pb-4">
+              <span className="text-xs font-black uppercase tracking-wider text-wedding-kumkum">
+                Indicative Budget Benchmark
+              </span>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-extrabold border border-emerald-300">
+                Ground Reality Town Rates
               </span>
             </div>
 
-            <div className="text-center py-5 bg-wedding-cream rounded-2xl border border-wedding-border">
-              <span className="text-xs text-wedding-muted font-bold uppercase tracking-wider">Estimated Total (INR)</span>
-              <div className="text-4xl sm:text-5xl font-black kumkum-text mt-1">
-                ₹{totalCost.toLocaleString('en-IN')}
+            {/* Price Strikethrough Display Box */}
+            <div className="text-center py-6 px-4 bg-white rounded-2xl border border-wedding-border shadow-inner space-y-3 relative overflow-hidden">
+              <div className="text-xs font-bold text-wedding-muted">
+                Estimated Celebration Value
               </div>
-              <p className="text-[11px] text-wedding-muted font-medium mt-2">Includes setup, venue styling, and taxes</p>
+
+              {/* Struck-Out Price */}
+              <div className="py-2">
+                <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight strikethrough-price">
+                  ₹ {calculatedValue.toLocaleString('en-IN')}
+                </span>
+              </div>
+
+              {/* Price Disclaimer Badge */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-red-50 text-wedding-kumkum text-xs font-bold border border-red-200">
+                <ShieldAlert className="w-3.5 h-3.5 text-wedding-ruby shrink-0" />
+                <span>Indicative only — Final quote customized to your budget</span>
+              </div>
             </div>
 
-            <div className="space-y-2 text-xs text-wedding-muted font-medium border-t border-b border-wedding-border py-4">
-              <div className="flex justify-between">
-                <span>Selected Service:</span>
-                <span className="font-bold text-wedding-text">{selectedService}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Guest Allocation ({guests}):</span>
-                <span className="font-bold text-wedding-text">₹{(guests * perGuestRate).toLocaleString('en-IN')}</span>
-              </div>
+            {/* Custom Quote Message */}
+            <div className="space-y-2 text-center sm:text-left bg-wedding-ivory/80 p-4 rounded-xl border border-wedding-border">
+              <h4 className="text-sm font-extrabold text-wedding-text">
+                Affordable & Value-For-Money Event Packages
+              </h4>
+              <p className="text-xs font-medium text-wedding-muted leading-relaxed">
+                Sri Ram Events operates with complete transparency. We adjust floral decor, lighting, and stage arrangements to match your exact budget—whether ₹30,000 or ₹1,20,000.
+              </p>
             </div>
 
+            {/* Direct CTA Button */}
             <button
-              onClick={() => onOpenBookingWithEstimate(selectedService, guests, totalCost)}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-wedding-kumkum via-wedding-marigold to-wedding-turmeric text-white font-black text-sm shadow-md hover:scale-105 transition-all flex items-center justify-center gap-2"
+              onClick={() => onOpenBookingWithEstimate(selectedCategory, guestCount, calculatedValue)}
+              className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-wedding-kumkum via-wedding-ruby to-wedding-marigold text-white font-black text-sm shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 group"
             >
-              <span>Lock In This Package Estimate</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Get My Personalized Quote</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
 
-            <p className="text-[11px] text-center text-wedding-muted font-medium">
-              🔒 No payment required now. Our event director will call to verify venue details.
+            <p className="text-[11px] text-center font-bold text-wedding-muted">
+              🔒 Call +91 95025 59333 for direct budget discussion with owner
             </p>
 
           </div>

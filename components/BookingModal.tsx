@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Sparkles, User, Phone, CheckCircle } from 'lucide-react';
+import { Sparkles, CheckCircle, Calendar, ShieldCheck, MessageSquare } from 'lucide-react';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -11,15 +11,20 @@ interface BookingModalProps {
   initialEstimate?: number;
 }
 
-export default function BookingModal({ isOpen, onClose, initialService, initialEstimate }: BookingModalProps) {
+export default function BookingModal({
+  isOpen,
+  onClose,
+  initialService,
+  initialEstimate,
+}: BookingModalProps) {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
-    service: initialService || 'Weddings',
+    service: initialService || 'Grand Weddings',
     date: '',
-    city: 'Madanapalle / Tirupati',
+    city: 'Madanapalle (Main Branch)',
     notes: '',
   });
 
@@ -33,51 +38,57 @@ export default function BookingModal({ isOpen, onClose, initialService, initialE
       particleCount: 120,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#B80D22', '#F59E0B', '#D4AF37', '#1E5631'],
+      colors: ['#8B1E29', '#B80D22', '#F59E0B', '#D4AF37', '#1E5631'],
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white p-6 sm:p-10 rounded-3xl border border-wedding-border max-w-lg w-full relative shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-wedding-border max-w-lg w-full relative shadow-2xl overflow-hidden">
+        
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold"
+          className="absolute top-4 right-4 text-wedding-muted hover:text-wedding-kumkum text-xl font-bold p-2"
+          aria-label="Close modal"
         >
           ✕
         </button>
 
         {!submitted ? (
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-wedding-marigold/15 border border-wedding-marigold/40 text-wedding-kumkum text-xs font-bold mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Sri Ram Events Booking</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-wedding-kumkum/10 border border-wedding-kumkum/20 text-wedding-kumkum text-xs font-bold mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-wedding-ruby" />
+              <span>Sri Ram Events Quotation</span>
             </div>
 
-            <h3 className="text-2xl font-black text-wedding-text">Book Your Celebration</h3>
-            <p className="text-xs text-wedding-muted mt-1 font-medium">
-              Fill in your details below and our lead Andhra event planner will reach out within 2 hours.
+            <h3 className="text-2xl font-black text-wedding-text">Request Customized Quote</h3>
+            <p className="text-xs text-wedding-muted mt-1 font-medium leading-relaxed">
+              Tell us about your celebration requirements. Our lead Telugu event specialist will contact you with a tailored proposal.
             </p>
 
             {initialEstimate && (
-              <div className="mt-4 p-3 rounded-xl bg-wedding-cream border border-wedding-border flex justify-between items-center text-xs">
-                <span className="text-wedding-muted font-bold">Estimated Total:</span>
-                <span className="font-black text-wedding-kumkum text-sm">
-                  ₹{initialEstimate.toLocaleString('en-IN')}
-                </span>
+              <div className="mt-4 p-3.5 rounded-xl bg-wedding-ivory border border-wedding-border flex justify-between items-center text-xs">
+                <span className="text-wedding-muted font-extrabold">Indicative Calculation:</span>
+                <div className="text-right">
+                  <span className="font-black text-wedding-kumkum text-sm strikethrough-price mr-2">
+                    ₹{initialEstimate.toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-[10px] font-bold text-wedding-muted block">Customized Package Applies</span>
+                </div>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-xs font-medium">
+            <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 text-xs font-medium">
               <div>
-                <label className="block text-wedding-text font-bold mb-1">Your Full Name *</label>
+                <label className="block text-wedding-text font-bold mb-1">Your Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Srikanth Reddy"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full py-2.5 px-3 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
+                  className="w-full py-2.5 px-3.5 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
                 />
               </div>
 
@@ -87,10 +98,10 @@ export default function BookingModal({ isOpen, onClose, initialService, initialE
                   <input
                     type="tel"
                     required
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 95025 59333"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full py-2.5 px-3 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
+                    className="w-full py-2.5 px-3.5 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
                   />
                 </div>
 
@@ -101,33 +112,26 @@ export default function BookingModal({ isOpen, onClose, initialService, initialE
                     required
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full py-2.5 px-3 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
+                    className="w-full py-2.5 px-3.5 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-wedding-text font-bold mb-1">Service Required</label>
+                <label className="block text-wedding-text font-bold mb-1">Event Category</label>
                 <select
                   value={formData.service}
                   onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                  className="w-full py-2.5 px-3 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
+                  className="w-full py-2.5 px-3.5 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
                 >
                   {[
-                    'Weddings',
-                    'Wedding and engagement',
-                    'Event decor design',
-                    'Decorations',
-                    'Catering',
-                    'Birthday party planning',
-                    'Childrens party planning',
-                    'Baby shower planning',
-                    'Anniversary party planning',
-                    'Corporate and conference',
-                    'School event',
-                    'Theme parties',
-                    'Party planning',
-                    'Private event planning',
+                    'Grand Weddings',
+                    'Joyous Birthdays',
+                    'Private Celebrations',
+                    'House Warming (Gruhapravesam)',
+                    'Authentic Catering',
+                    'School & College Fests',
+                    'Creative Theme Parties',
                   ].map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
@@ -138,54 +142,66 @@ export default function BookingModal({ isOpen, onClose, initialService, initialE
                 <label className="block text-wedding-text font-bold mb-1">Venue Location / City</label>
                 <input
                   type="text"
-                  placeholder="Madanapalle / Chittoor / Tirupati / Hyderabad"
+                  placeholder="Madanapalle / Tirupati / Punganur / Kothakota"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full py-2.5 px-3 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
+                  className="w-full py-2.5 px-3.5 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-wedding-text font-bold mb-1">Special Village Decor Requests</label>
+                <label className="block text-wedding-text font-bold mb-1">Specific Decor / Catering Notes</label>
                 <textarea
                   rows={2}
-                  placeholder="e.g., Require 5-tier Kondapalli Koluvu & Hand-Drawn Single-Line Rangoli"
+                  placeholder="e.g. Traditional floral mandapam setup & banana leaf catering for 300 guests"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full py-2.5 px-3 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none resize-none"
+                  className="w-full py-2.5 px-3.5 rounded-xl bg-wedding-bg border border-wedding-border text-wedding-text focus:border-wedding-kumkum focus:outline-none resize-none"
                 ></textarea>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-wedding-kumkum text-white font-black text-sm shadow-md hover:bg-red-700 transition-all mt-2"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-wedding-kumkum via-wedding-ruby to-wedding-marigold text-white font-black text-sm shadow-md hover:shadow-lg transition-all mt-2"
               >
-                Confirm Booking Request
+                Submit Quote Request
               </button>
             </form>
           </div>
         ) : (
-          <div className="text-center py-8 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-wedding-kumkum/10 border border-wedding-kumkum flex items-center justify-center mx-auto text-wedding-kumkum animate-bounce">
+          <div className="text-center py-6 space-y-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-400 flex items-center justify-center mx-auto text-emerald-600 animate-bounce">
               <CheckCircle className="w-10 h-10" />
             </div>
             <h3 className="text-2xl font-black text-wedding-text">
-              నమస్కారం! Booking Confirmed
+              నమస్కారం! Quote Requested
             </h3>
             <p className="text-xs text-wedding-muted max-w-sm mx-auto leading-relaxed font-medium">
-              Thank you, <strong className="text-wedding-kumkum">{formData.name}</strong>! Sri Ram Events team has reserved your query for{' '}
-              <strong className="text-wedding-text">{formData.service}</strong>. We will contact you at <strong>{formData.phone}</strong> shortly.
+              Thank you, <strong className="text-wedding-kumkum">{formData.name}</strong>! Sri Ram Events team has received your inquiry for{' '}
+              <strong className="text-wedding-text">{formData.service}</strong>. We will call you at <strong>{formData.phone}</strong> shortly with a personalized quotation.
             </p>
 
-            <button
-              onClick={() => {
-                setSubmitted(false);
-                onClose();
-              }}
-              className="mt-4 px-8 py-3 rounded-xl bg-wedding-kumkum text-white font-bold text-xs hover:bg-red-700 transition-colors"
-            >
-              Done & Return to Site
-            </button>
+            <div className="pt-2 flex flex-col gap-2">
+              <a
+                href={`https://wa.me/919502559333?text=Hi%20Sri%20Ram%20Events%2C%20I%20just%20submitted%20a%20quote%20request%20for%20${encodeURIComponent(formData.service)}.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow flex items-center justify-center gap-2"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Chat Instantly on WhatsApp</span>
+              </a>
+
+              <button
+                onClick={() => {
+                  setSubmitted(false);
+                  onClose();
+                }}
+                className="w-full py-2.5 rounded-xl bg-wedding-ivory border border-wedding-border text-wedding-text font-bold text-xs hover:border-wedding-kumkum transition-colors"
+              >
+                Close & Return to Website
+              </button>
+            </div>
           </div>
         )}
       </div>

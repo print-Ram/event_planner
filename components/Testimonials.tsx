@@ -1,72 +1,86 @@
 'use client';
 
 import React from 'react';
-import { Star, Quote, Sparkles } from 'lucide-react';
-import SingleLineRangoli from './SingleLineRangoli';
+import { ShieldCheck, HeartHandshake, Sparkles, Clock, CheckCircle, Award } from 'lucide-react';
 
 export default function Testimonials() {
-  const reviews = [
+  const trustPillars = [
     {
-      name: 'Rajasekhar & Harini',
-      role: 'Wedding & Nishchitartham',
-      location: 'Tirupati',
-      rating: 5,
-      text: 'Sri Ram Events organized our Telugu wedding mandapam with stunning hand-drawn single-line Rangolis and authentic Kondapalli doll Koluvu. The guests loved the traditional banana leaf feast!',
+      icon: HeartHandshake,
+      title: 'Authentic Telugu Tradition',
+      telugu: 'మన సంస్కృతి... మన వేడుకల్లో',
+      description: 'Deep understanding of Andhra & Telangana rituals, festive aesthetics, pelli mandapam decor, and traditional hospitality.',
     },
     {
-      name: 'Dr. Anjaneyulu Naidu',
-      role: 'Corporate Summit & Gala',
-      location: 'Vijayawada',
-      rating: 5,
-      text: 'For our regional conference, Sri Ram Events delivered high-res stage setups, acoustic sound, and traditional Andhra village reception decor. Highly professional team.',
+      icon: ShieldCheck,
+      title: '100% Transparent Planning',
+      telugu: 'నమ్మకమైన సేవల బాధ్యత',
+      description: 'No hidden charges or last-minute surprises. Every vendor, item, and floral detail is itemized in your customized quote.',
     },
     {
-      name: 'Lakshmi Prasanna',
-      role: 'Baby Shower (Sreemantham)',
-      location: 'Madanapalle',
-      rating: 5,
-      text: 'The floral swing and decorated Uyyala for my daughter Sreemantham was beyond beautiful. They included authentic Kondapalli return gifts that everyone cherished!',
+      icon: Sparkles,
+      title: 'Tailored Event Design',
+      telugu: 'సృజనాత్మకత నిండిన అలంకరణ',
+      description: 'We never copy generic templates. Every mandapam, theme party, or birthday backdrop is custom-designed around your story.',
+    },
+    {
+      icon: Clock,
+      title: 'Flawless On-Time Execution',
+      telugu: 'సమయ పాలన... పరిపూర్ణత',
+      description: 'Punctual setup completion hours before guests arrive, leaving you relaxed to enjoy your celebration.',
     },
   ];
 
   return (
-    <section className="py-20 relative overflow-hidden bg-wedding-bg border-t border-wedding-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="why-us" className="py-24 bg-[#FFFDF7] relative border-t border-wedding-border/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wedding-marigold/15 border border-wedding-marigold/40 text-wedding-kumkum text-xs font-bold mb-4">
-            <Sparkles className="w-4 h-4 text-wedding-kumkum" />
-            <span>Client Praise & Google Reviews</span>
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wedding-kumkum/10 text-wedding-kumkum text-xs font-extrabold border border-wedding-kumkum/20">
+            <Award className="w-4 h-4 text-wedding-ruby" />
+            <span>Why Choose Sri Ram Events</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-wedding-text">
-            Loved by Families & <span className="kumkum-text">Corporates</span>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-wedding-text tracking-tight">
+            Crafting Celebrations With <span className="kumkum-text">Integrity & Warmth</span>
           </h2>
-          <SingleLineRangoli variant="divider" color="#B80D22" className="my-2" />
+
+          <p className="text-base text-wedding-muted font-medium">
+            Your celebration deserves care, respect, and meticulous execution. Here is how we guarantee an unforgettable event experience.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reviews.map((rev, idx) => (
-            <div key={idx} className="wedding-card p-6 sm:p-8 rounded-3xl border border-wedding-border flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-1 text-wedding-marigold mb-4">
-                  {Array.from({ length: rev.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-wedding-marigold text-wedding-marigold" />
-                  ))}
+        {/* 4 Pillars Grid */}
+        <div className="grid md:grid-cols-2 gap-8">
+          {trustPillars.map((pillar, idx) => {
+            const IconComp = pillar.icon;
+            return (
+              <div
+                key={idx}
+                className="wedding-card rounded-3xl p-8 border border-wedding-border hover:border-wedding-turmeric transition-all duration-300 space-y-4"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-wedding-kumkum/10 border border-wedding-kumkum/20 flex items-center justify-center text-wedding-kumkum shrink-0">
+                    <IconComp className="w-6 h-6 text-wedding-ruby" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-extrabold text-wedding-kumkum">{pillar.telugu}</span>
+                    <h3 className="text-xl font-black text-wedding-text">{pillar.title}</h3>
+                  </div>
                 </div>
-                <p className="text-xs sm:text-sm text-wedding-muted leading-relaxed italic font-medium">
-                  "{rev.text}"
-                </p>
-              </div>
 
-              <div className="mt-6 pt-4 border-t border-wedding-border flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-extrabold text-wedding-text">{rev.name}</h4>
-                  <p className="text-[11px] text-wedding-kumkum font-bold">{rev.role} • {rev.location}</p>
+                <p className="text-sm font-medium text-wedding-muted leading-relaxed pl-16">
+                  {pillar.description}
+                </p>
+
+                <div className="pt-2 pl-16 flex items-center gap-2 text-xs font-extrabold text-wedding-leaf">
+                  <CheckCircle className="w-4 h-4 shrink-0" />
+                  <span>Sri Ram Quality Commitment Guaranteed</span>
                 </div>
-                <Quote className="w-8 h-8 text-wedding-marigold/30" />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
       </div>

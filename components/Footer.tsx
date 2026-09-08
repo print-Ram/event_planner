@@ -1,71 +1,104 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Phone, Mail } from 'lucide-react';
-import SingleLineRangoli from './SingleLineRangoli';
+import { Phone, Mail, MapPin, Heart, Sparkles } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-wedding-ivory border-t border-wedding-border pt-16 pb-12 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+    <footer className="bg-[#1A1214] text-white/80 pt-16 pb-12 border-t border-wedding-border/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           
-          <div className="md:col-span-2 space-y-4">
+          {/* Brand Col */}
+          <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img
                 src="/sri-ram-icon.png"
-                alt="Sri Ram Events Logo"
-                className="w-12 h-12 object-cover rounded-xl border border-wedding-border shadow-md bg-black"
+                alt="Sri Ram Events"
+                className="h-10 w-10 object-cover rounded-lg bg-black p-0.5 border border-wedding-turmeric"
               />
-              <span className="text-2xl font-black text-wedding-text">
-                Sri Ram <span className="kumkum-text">Events</span>
-              </span>
+              <div>
+                <span className="text-xl font-black text-white tracking-tight">
+                  Sri Ram <span className="text-wedding-warmGold">Events</span>
+                </span>
+                <p className="text-[11px] font-semibold text-white/60">We plan, you Celebrate</p>
+              </div>
             </div>
-            <p className="text-xs text-wedding-muted max-w-md leading-relaxed font-medium">
-              Premieres of authentic Andhra village heritage and traditional wedding styling. Bringing hand-drawn single-line Rangolis, Kondapalli Koluvu displays, and grand Telugu wedding celebrations to life.
+
+            <p className="text-xs font-medium leading-relaxed text-white/60">
+              Transforming your milestones into unforgettable festive experiences with authentic Telugu culture, elegant mandapams, and end-to-end event execution.
             </p>
-            <div className="text-xs text-wedding-kumkum font-bold font-mono">
-              WE PLAN. YOU CELEBRATE. • మీ ప్రతి శుభకార్యానికి సదా సిద్ధం
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-wedding-warmGold text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>సంతోషాన్ని అందంగా జరుపుకుందాం</span>
             </div>
           </div>
 
+          {/* Event Services Links */}
           <div className="space-y-3">
-            <h4 className="text-sm font-extrabold text-wedding-text uppercase tracking-wider">Contact & Address</h4>
-            <div className="space-y-2 text-xs text-wedding-muted font-medium">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-wedding-kumkum shrink-0 mt-0.5" />
-                <span>Sri Ram Events, Main Road, Chittoor District, Andhra Pradesh 517325</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-wedding-marigold shrink-0" />
-                <span>+91 98765 43210 / +91 87654 32109</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-wedding-kumkum shrink-0" />
-                <span>contact@sriramevents.in</span>
-              </div>
-            </div>
+            <h4 className="text-sm font-black uppercase tracking-wider text-wedding-warmGold">
+              Event Categories
+            </h4>
+            <ul className="space-y-2 text-xs font-semibold text-white/70">
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">Grand Weddings</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">Joyous Birthdays</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">Private Gatherings</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">House Warming (Gruhapravesam)</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">Authentic Catering</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">School & College Fests</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">Creative Theme Parties</a></li>
+            </ul>
           </div>
 
+          {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-sm font-extrabold text-wedding-text uppercase tracking-wider">Quick Navigation</h4>
-            <ul className="space-y-2 text-xs text-wedding-muted font-medium">
-              <li><a href="#hero" className="hover:text-wedding-kumkum transition-colors">Home</a></li>
-              <li><a href="#rangoli-studio" className="hover:text-wedding-kumkum transition-colors">Single-Line Rangoli Studio</a></li>
-              <li><a href="#bommala-koluvu" className="hover:text-wedding-kumkum transition-colors">Cultural Dolls Showcase</a></li>
-              <li><a href="#services" className="hover:text-wedding-kumkum transition-colors">Service Offerings</a></li>
-              <li><a href="#estimator" className="hover:text-wedding-kumkum transition-colors">Cost Estimator</a></li>
+            <h4 className="text-sm font-black uppercase tracking-wider text-wedding-warmGold">
+              Quick Navigation
+            </h4>
+            <ul className="space-y-2 text-xs font-semibold text-white/70">
+              <li><a href="#hero" className="hover:text-wedding-warmGold transition-colors">Home</a></li>
+              <li><a href="#services" className="hover:text-wedding-warmGold transition-colors">Services We Offer</a></li>
+              <li><a href="#estimator" className="hover:text-wedding-warmGold transition-colors">Event Cost Estimator</a></li>
+              <li><a href="#why-us" className="hover:text-wedding-warmGold transition-colors">Why Choose Us</a></li>
+              <li><a href="#contact" className="hover:text-wedding-warmGold transition-colors">Request Quotation</a></li>
+            </ul>
+          </div>
+
+          {/* Contact Details */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-black uppercase tracking-wider text-wedding-warmGold">
+              Contact & Location
+            </h4>
+            <ul className="space-y-3 text-xs font-medium text-white/70">
+              <li className="flex items-center gap-2.5">
+                <Phone className="w-4 h-4 text-wedding-warmGold shrink-0" />
+                <a href="tel:+919502559333" className="hover:text-wedding-warmGold transition-colors">+91 95025 59333</a>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-wedding-warmGold shrink-0" />
+                <span>contact@sriramevents.com</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-wedding-warmGold shrink-0 mt-0.5" />
+                <span>Madanapalle (Main Branch), Tirupati, Punganur, Kothakota & across Andhra Pradesh</span>
+              </li>
             </ul>
           </div>
 
         </div>
 
-        <div className="pt-8 border-t border-wedding-border flex flex-col sm:flex-row items-center justify-between text-xs text-wedding-muted font-medium gap-4">
-          <p>© {new Date().getFullYear()} Sri Ram Events. All rights reserved. We plan you Celebrate.</p>
-          <div className="flex items-center gap-1">
-            <span>Crafted with Authentic Telugu Pride</span>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-white/50">
+          <p>© {new Date().getFullYear()} Sri Ram Events. All rights reserved.</p>
+          <div className="flex items-center gap-1.5">
+            <span>Designed with</span>
+            <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+            <span>for Telugu Celebrations</span>
           </div>
         </div>
+
       </div>
     </footer>
   );
