@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "stats": {
+      "totalVisitors": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.isNumber()"
+      },
+      "liveCount": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.isNumber()"
+      }
+    },
+    "presence": {
+      "$sessionId": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChild('online')"
+      }
+    },
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}
