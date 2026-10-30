@@ -31,3 +31,7 @@ pnpm-debug.log*
 # firebase
 .firebase/
 /dist/
+
+# archives
+*.zip
+

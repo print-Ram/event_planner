@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://sriramevents.com'),
   title: 'Sri Ram Events | Premier Event Planning & Decor in Madanapalle, Tirupati, Punganur & AP',
   description: 'Sri Ram Events brings grand celebrations to life. Main branch located at Madanapalle, serving Tirupati, Punganur, Kothakota & across Andhra Pradesh with authentic wedding mandapams, birthdays, house warmings, catering, and theme parties.',
   keywords: 'Sri Ram Events Madanapalle, Event Planner Madanapalle, Telugu Wedding Decor Tirupati, Pelli Mandapam Punganur, Event Organizers Kothakota, Gruhapravesam Decor Andhra Pradesh',
