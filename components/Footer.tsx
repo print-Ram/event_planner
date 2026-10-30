@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, Heart, Sparkles, Eye, Users, Globe, Activity } from 'lucide-react';
-import { initializeApp, getApps } from 'firebase/app';
+import { database } from '../lib/firebase';
 import {
-  getDatabase,
   ref,
   onValue,
   runTransaction,
@@ -12,24 +11,6 @@ import {
   set,
   serverTimestamp,
 } from 'firebase/database';
-
-// ─── Firebase Configuration ──────────────────────────────────────────────────
-// REPLACE these values with your actual Firebase config from:
-// https://console.firebase.google.com/project/srevents-mpl/settings/general
-const firebaseConfig = {
-  apiKey: "AIzaSyBTiIo4xaLz5ICPstjdg9BkS2cHwNfrMqk",
-  authDomain: "srevents-mpl.firebaseapp.com",
-  databaseURL: "https://srevents-mpl-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "srevents-mpl",
-  storageBucket: "srevents-mpl.firebasestorage.app",
-  messagingSenderId: "719656876086",
-  appId: "1:719656876086:web:9ea3402ace94bf890f4097",
-  measurementId: "G-NE0WRVNKH3",
-};
-
-// Initialize Firebase (only once)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const database = getDatabase(app);
 
 // ─── Real-Time Visitor Counter Hook (Firebase Realtime Database) ─────────────
 function useVisitorCount() {
@@ -330,9 +311,26 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Bar with Hidden Triple-Click Admin Trigger */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-white/50">
-          <p>© {new Date().getFullYear()} Sri Ram Events. All rights reserved.</p>
+          <p
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                const count = (parseInt(sessionStorage.getItem('sre_admin_clicks') || '0', 10) + 1);
+                sessionStorage.setItem('sre_admin_clicks', count.toString());
+                if (count >= 3) {
+                  sessionStorage.setItem('sre_admin_clicks', '0');
+                  window.dispatchEvent(new CustomEvent('open-admin-portal'));
+                } else {
+                  setTimeout(() => sessionStorage.setItem('sre_admin_clicks', '0'), 1500);
+                }
+              }
+            }}
+            className="cursor-default select-none transition-colors hover:text-white/70"
+            title=""
+          >
+            © {new Date().getFullYear()} Sri Ram Events. All rights reserved.
+          </p>
           <div className="flex items-center gap-1.5">
             <span>Designed with</span>
             <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
