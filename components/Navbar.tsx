@@ -30,7 +30,14 @@ export default function Navbar({ onOpenBooking }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Brand Logo & Tagline */}
         <a href="#" className="flex items-center gap-3 group">
-          <div className="relative flex items-center justify-center p-1 rounded-xl bg-gradient-to-tr from-wedding-kumkum via-wedding-marigold to-wedding-turmeric shadow-md group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+          <div
+            onDoubleClick={(e) => {
+              e.preventDefault();
+              window.dispatchEvent(new CustomEvent('open-admin-portal'));
+            }}
+            title=""
+            className="relative flex items-center justify-center p-1 rounded-xl bg-gradient-to-tr from-wedding-kumkum via-wedding-marigold to-wedding-turmeric shadow-md group-hover:scale-105 transition-transform duration-300 overflow-hidden cursor-pointer"
+          >
             <img
               src="/sri-ram-icon.png"
               alt="Sri Ram Events Symbol"

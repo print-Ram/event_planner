@@ -3,25 +3,30 @@
     "stats": {
       "totalVisitors": {
         ".read": true,
-        ".write": true,
-        ".validate": "newData.isNumber()"
+        ".write": true
       },
       "liveCount": {
         ".read": true,
-        ".write": true,
-        ".validate": "newData.isNumber()"
+        ".write": true
       }
     },
     "presence": {
       "$sessionId": {
         ".read": true,
-        ".write": true,
-        ".validate": "newData.hasChild('online')"
+        ".write": true
       }
     },
-    "$other": {
-      ".read": false,
-      ".write": false
+    "site_content": {
+      ".read": true,
+      ".write": true
+    },
+    "admin_config": {
+      ".read": true,
+      ".write": true
+    },
+    "quotes": {
+      ".read": true,
+      ".write": true
     }
   }
 }

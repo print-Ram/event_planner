@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import AdminManager from '../components/AdminManager';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://sriramevents.com'),
@@ -40,7 +41,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/sri-ram-icon.png" />
       </head>
       <body className="antialiased selection:bg-wedding-ruby selection:text-white">
-        {children}
+        <AdminManager>{children}</AdminManager>
       </body>
     </html>
   );

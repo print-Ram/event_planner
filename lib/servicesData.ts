@@ -25,6 +25,21 @@ export interface ServiceFAQ {
   answer: string;
 }
 
+export interface ServiceTheme {
+  primary: string;
+  secondary: string;
+  badgeBg: string;
+  tagColor: string;
+  bannerGradient: string;
+  cardBorderHover: string;
+  heroAura1: string;
+  heroAura2: string;
+  buttonGradient: string;
+  highlightBg: string;
+  accentText: string;
+  accentRgb: string;
+}
+
 export interface ServiceDetail {
   id: string;
   name: string;
@@ -1166,3 +1181,125 @@ export const SERVICES_DATA: ServiceDetail[] = [
 export function getServiceById(id: string): ServiceDetail | undefined {
   return SERVICES_DATA.find((service) => service.id.toLowerCase() === id.toLowerCase());
 }
+
+export const CATEGORY_THEMES: Record<string, ServiceTheme> = {
+  weddings: {
+    primary: '#8B1E29',
+    secondary: '#D4AF37',
+    badgeBg: 'bg-rose-900/10 border-rose-900/25 text-[#8B1E29]',
+    tagColor: 'text-[#8B1E29]',
+    bannerGradient: 'from-[#4D0C16] via-[#781522] to-[#991B2B]',
+    cardBorderHover: 'hover:border-[#8B1E29]',
+    heroAura1: 'bg-amber-400/20',
+    heroAura2: 'bg-rose-800/20',
+    buttonGradient: 'from-[#8B1E29] via-[#A81B2D] to-amber-600',
+    highlightBg: 'bg-rose-50/70 border-rose-200/80',
+    accentText: 'text-[#8B1E29]',
+    accentRgb: '139, 30, 41',
+  },
+  birthdays: {
+    primary: '#7C3AED',
+    secondary: '#F59E0B',
+    badgeBg: 'bg-purple-100 border-purple-300 text-purple-900',
+    tagColor: 'text-purple-800',
+    bannerGradient: 'from-[#3B0764] via-[#6B21A8] to-[#9333EA]',
+    cardBorderHover: 'hover:border-purple-500',
+    heroAura1: 'bg-fuchsia-400/25',
+    heroAura2: 'bg-purple-600/20',
+    buttonGradient: 'from-purple-800 via-fuchsia-700 to-amber-500',
+    highlightBg: 'bg-purple-50/70 border-purple-200/80',
+    accentText: 'text-purple-800',
+    accentRgb: '124, 58, 237',
+  },
+  'house-warming': {
+    primary: '#047857',
+    secondary: '#D97706',
+    badgeBg: 'bg-emerald-100 border-emerald-300 text-emerald-900',
+    tagColor: 'text-emerald-800',
+    bannerGradient: 'from-[#064E3B] via-[#047857] to-[#B45309]',
+    cardBorderHover: 'hover:border-emerald-600',
+    heroAura1: 'bg-emerald-400/25',
+    heroAura2: 'bg-amber-400/20',
+    buttonGradient: 'from-emerald-800 via-teal-700 to-amber-600',
+    highlightBg: 'bg-emerald-50/70 border-emerald-200/80',
+    accentText: 'text-emerald-800',
+    accentRgb: '4, 120, 87',
+  },
+  catering: {
+    primary: '#15803D',
+    secondary: '#CA8A04',
+    badgeBg: 'bg-green-100 border-green-300 text-green-900',
+    tagColor: 'text-green-800',
+    bannerGradient: 'from-[#14532D] via-[#15803D] to-[#CA8A04]',
+    cardBorderHover: 'hover:border-green-600',
+    heroAura1: 'bg-green-400/25',
+    heroAura2: 'bg-yellow-400/25',
+    buttonGradient: 'from-green-800 via-emerald-700 to-amber-600',
+    highlightBg: 'bg-green-50/70 border-green-200/80',
+    accentText: 'text-green-800',
+    accentRgb: '21, 128, 61',
+  },
+  'private-events': {
+    primary: '#EA580C',
+    secondary: '#EAB308',
+    badgeBg: 'bg-orange-100 border-orange-300 text-orange-900',
+    tagColor: 'text-orange-800',
+    bannerGradient: 'from-[#7C2D12] via-[#C2410C] to-[#EA580C]',
+    cardBorderHover: 'hover:border-orange-500',
+    heroAura1: 'bg-orange-400/25',
+    heroAura2: 'bg-amber-300/25',
+    buttonGradient: 'from-orange-800 via-amber-700 to-yellow-600',
+    highlightBg: 'bg-orange-50/70 border-orange-200/80',
+    accentText: 'text-orange-800',
+    accentRgb: '234, 88, 12',
+  },
+  'school-events': {
+    primary: '#1D4ED8',
+    secondary: '#06B6D4',
+    badgeBg: 'bg-blue-100 border-blue-300 text-blue-900',
+    tagColor: 'text-blue-800',
+    bannerGradient: 'from-[#0F172A] via-[#1E3A8A] to-[#2563EB]',
+    cardBorderHover: 'hover:border-blue-500',
+    heroAura1: 'bg-blue-500/25',
+    heroAura2: 'bg-cyan-400/25',
+    buttonGradient: 'from-blue-900 via-indigo-700 to-cyan-600',
+    highlightBg: 'bg-blue-50/70 border-blue-200/80',
+    accentText: 'text-blue-800',
+    accentRgb: '29, 78, 216',
+  },
+  'theme-parties': {
+    primary: '#BE185D',
+    secondary: '#7C3AED',
+    badgeBg: 'bg-pink-100 border-pink-300 text-pink-900',
+    tagColor: 'text-pink-800',
+    bannerGradient: 'from-[#311042] via-[#831843] to-[#BE185D]',
+    cardBorderHover: 'hover:border-pink-500',
+    heroAura1: 'bg-pink-400/25',
+    heroAura2: 'bg-purple-500/25',
+    buttonGradient: 'from-pink-800 via-rose-700 to-purple-700',
+    highlightBg: 'bg-pink-50/70 border-pink-200/80',
+    accentText: 'text-pink-800',
+    accentRgb: '190, 24, 93',
+  },
+};
+
+export function getServiceTheme(serviceId: string): ServiceTheme {
+  const normalized = serviceId.toLowerCase();
+  return (
+    CATEGORY_THEMES[normalized] || {
+      primary: '#8B1E29',
+      secondary: '#D4AF37',
+      badgeBg: 'bg-rose-900/10 border-rose-900/25 text-[#8B1E29]',
+      tagColor: 'text-[#8B1E29]',
+      bannerGradient: 'from-[#4D0C16] via-[#781522] to-[#991B2B]',
+      cardBorderHover: 'hover:border-[#8B1E29]',
+      heroAura1: 'bg-amber-400/20',
+      heroAura2: 'bg-rose-800/20',
+      buttonGradient: 'from-[#8B1E29] via-[#A81B2D] to-amber-600',
+      highlightBg: 'bg-rose-50/70 border-rose-200/80',
+      accentText: 'text-[#8B1E29]',
+      accentRgb: '139, 30, 41',
+    }
+  );
+}
+
