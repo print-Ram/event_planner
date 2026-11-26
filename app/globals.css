@@ -3,92 +3,79 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 31, 22, 24;
-  --background-start-rgb: 255, 253, 247;
-  --background-end-rgb: 250, 244, 232;
+  --color-ivory: #F6F1E9;
+  --color-cream: #F4EFE7;
+  --color-beige: #E5D7C7;
+  --color-sand: #C4AE98;
+  --color-taupe: #A58D76;
+  --color-mocha: #79604D;
+  --color-espresso: #332821;
+  --color-white: #FFFFFF;
+  --color-muted: #82776D;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: #FFFDF7;
-  min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  overflow-x: hidden;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-ivory);
+    color: var(--color-espresso);
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-espresso);
+    font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .font-editorial {
+    font-family: var(--font-cormorant), Georgia, serif;
+    letter-spacing: -0.015em;
+  }
 }
 
-/* Premium Celebration Cards & Glass Panels */
-.wedding-panel {
-  background: rgba(255, 253, 247, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  box-shadow: 0 10px 30px -10px rgba(139, 30, 41, 0.08), 0 4px 12px rgba(212, 175, 55, 0.08);
+.luxury-card {
+  background-color: var(--color-white);
+  border: 1px solid rgba(196, 174, 152, 0.45);
+  box-shadow: 0 8px 30px -12px rgba(51, 40, 33, 0.07);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
 }
 
-.wedding-card {
-  background: #FFFFFF;
-  border: 1px solid rgba(232, 217, 197, 0.85);
-  box-shadow: 0 4px 20px rgba(139, 30, 41, 0.04);
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+.luxury-card:hover {
+  border-color: rgba(121, 96, 77, 0.5);
+  box-shadow: 0 18px 45px -15px rgba(51, 40, 33, 0.14);
 }
 
-.wedding-card:hover {
-  background: #FFFDF9;
-  border-color: rgba(212, 175, 55, 0.6);
-  box-shadow: 0 14px 40px -10px rgba(139, 30, 41, 0.16);
-  transform: translateY(-6px);
+.eyebrow-label {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mocha);
 }
 
-.gold-text {
-  background: linear-gradient(135deg, #8B1E29 0%, #D4AF37 50%, #C59B27 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.kumkum-text {
-  background: linear-gradient(135deg, #8B1E29 0%, #B80D22 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Strikethrough Price Effect for Estimator */
-.strikethrough-price {
-  position: relative;
-  display: inline-block;
-  color: #8B1E29;
-  font-weight: 800;
-  opacity: 0.75;
-}
-
-.strikethrough-price::after {
-  content: '';
-  position: absolute;
-  left: -4%;
-  top: 50%;
-  width: 108%;
-  height: 4px;
-  background: linear-gradient(90deg, #B80D22, #D4AF37);
-  border-radius: 2px;
-  transform: rotate(-3deg);
-}
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
-}
-::-webkit-scrollbar-track {
-  background: #FFFDF7;
-}
-::-webkit-scrollbar-thumb {
-  background: #D4AF37;
-  border-radius: 5px;
-  border: 2px solid #FFFDF7;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #8B1E29;
+  width: 8px;
 }
 
-/* Respect Reduced Motion */
+::-webkit-scrollbar-track {
+  background: var(--color-ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mocha);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -97,4 +84,3 @@ body {
     scroll-behavior: auto !important;
   }
 }
-
