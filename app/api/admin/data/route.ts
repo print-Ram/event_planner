@@ -45,7 +45,7 @@ function unauthorized() {
 }
 
 export async function GET() {
-  if (!isAdminAuthenticatedFromCookies()) return unauthorized();
+  if (!(await isAdminAuthenticatedFromCookies())) return unauthorized();
 
   try {
     const [
@@ -88,7 +88,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!isAdminAuthenticatedFromCookies()) return unauthorized();
+  if (!(await isAdminAuthenticatedFromCookies())) return unauthorized();
 
   try {
     const body = (await request.json()) as {

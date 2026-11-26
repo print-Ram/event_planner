@@ -21,8 +21,9 @@ export const metadata: Metadata = {
 export default async function BookPage({
   searchParams,
 }: {
-  searchParams?: { service?: string };
+  searchParams?: Promise<{ service?: string }>;
 }) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const [packages, settings, slots, bookings] = await Promise.all([
     getPackages(false),
     getBusinessSettings(),
@@ -51,7 +52,7 @@ export default async function BookPage({
             packages={packages}
             settings={settings}
             unavailableDates={unavailableDates}
-            initialService={searchParams?.service}
+            initialService={resolvedSearchParams?.service}
           />
         </div>
       </section>

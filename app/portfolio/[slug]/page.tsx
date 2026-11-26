@@ -11,9 +11,10 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const project = await getPortfolioBySlug(params.slug);
+  const { slug } = await params;
+  const project = await getPortfolioBySlug(slug);
   if (!project) return { title: 'Project Not Found' };
 
   return {
@@ -30,9 +31,10 @@ export async function generateMetadata({
 export default async function PortfolioDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const project = await getPortfolioBySlug(params.slug);
+  const { slug } = await params;
+  const project = await getPortfolioBySlug(slug);
   if (!project || !project.published) notFound();
 
   const gallery = Array.from(

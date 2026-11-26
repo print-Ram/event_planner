@@ -104,7 +104,7 @@ export default function Footer({
   );
 
   return (
-    <footer className="bg-espresso text-ivory/90 border-t border-sand/20">
+    <footer className="bg-espresso text-ivory border-t border-sand/25">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-14 border-b border-ivory/15">
           <div className="lg:col-span-4 space-y-5">
@@ -113,7 +113,7 @@ export default function Footer({
               monogram={settings.monogram}
               variant="light"
             />
-            <p className="text-sm leading-relaxed text-ivory/70 max-w-sm">
+            <p className="text-sm leading-relaxed text-beige/90 max-w-sm">
               A luxury event planning and design studio crafting bespoke weddings,
               milestone celebrations, and refined hospitality experiences across{' '}
               {settings.service_areas}.
@@ -124,7 +124,7 @@ export default function Footer({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-ivory/20 text-xs text-ivory/85 hover:border-sand hover:text-white transition-colors"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-sand/40 text-xs text-ivory hover:border-ivory hover:text-white transition-colors"
               >
                 <Instagram className="w-3.5 h-3.5" />
                 <span>{settings.instagram_handle}</span>
@@ -134,7 +134,7 @@ export default function Footer({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-ivory/20 text-xs text-ivory/85 hover:border-sand hover:text-white transition-colors"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-sand/40 text-xs text-ivory hover:border-ivory hover:text-white transition-colors"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>WhatsApp</span>
@@ -146,7 +146,7 @@ export default function Footer({
             <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-sand">
               Studio
             </h3>
-            <ul className="space-y-2.5 text-sm text-ivory/75">
+            <ul className="space-y-2.5 text-sm text-ivory/90">
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
                   About Us
@@ -184,7 +184,7 @@ export default function Footer({
             <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-sand">
               Services
             </h3>
-            <ul className="space-y-2.5 text-sm text-ivory/75">
+            <ul className="space-y-2.5 text-sm text-ivory/90">
               {services.slice(0, 6).map((service) => (
                 <li key={service.id}>
                   <Link
@@ -202,7 +202,7 @@ export default function Footer({
             <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-sand">
               Contact
             </h3>
-            <ul className="space-y-3 text-sm text-ivory/75">
+            <ul className="space-y-3 text-sm text-ivory/90">
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-sand shrink-0" />
                 <a
@@ -228,7 +228,7 @@ export default function Footer({
             </ul>
 
             {(liveVisitors !== null || totalVisitors !== null) && (
-              <div className="pt-2 flex flex-wrap items-center gap-4 text-[11px] text-sand/85">
+              <div className="pt-2 flex flex-wrap items-center gap-4 text-[11px] text-beige">
                 {liveVisitors !== null && (
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -243,21 +243,21 @@ export default function Footer({
           </div>
         </div>
 
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ivory/55">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-beige/85">
           <p
             onClick={handleCopyrightClick}
-            className="select-none cursor-default hover:text-ivory/75 transition-colors"
+            className="select-none cursor-default hover:text-ivory transition-colors"
           >
             © {new Date().getFullYear()} {settings.business_name}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-ivory transition-colors">
+            <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-ivory transition-colors">
+            <Link href="/terms" className="hover:text-white transition-colors">
               Terms &amp; Conditions
             </Link>
-            <Link href="/contact" className="hover:text-ivory transition-colors">
+            <Link href="/contact" className="hover:text-white transition-colors">
               Enquire
             </Link>
           </div>

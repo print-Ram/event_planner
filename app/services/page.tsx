@@ -15,8 +15,9 @@ export const metadata: Metadata = {
 export default async function ServicesPage({
   searchParams,
 }: {
-  searchParams?: { category?: string };
+  searchParams?: Promise<{ category?: string }>;
 }) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const [services, settings] = await Promise.all([
     getServices(false),
     getBusinessSettings(),
@@ -40,7 +41,7 @@ export default async function ServicesPage({
 
           <ServicesCatalog
             services={services}
-            initialCategory={searchParams?.category || 'All'}
+            initialCategory={resolvedSearchParams?.category || 'All'}
             currencySymbol={settings.currency_symbol}
           />
         </div>

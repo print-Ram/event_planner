@@ -9,7 +9,9 @@ import {
 import { verifyServerAdminPasscode } from '@/lib/data/repository';
 
 export async function GET() {
-  return NextResponse.json({ authenticated: isAdminAuthenticatedFromCookies() });
+  return NextResponse.json({
+    authenticated: await isAdminAuthenticatedFromCookies(),
+  });
 }
 
 export async function POST(request: Request) {

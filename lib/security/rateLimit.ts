@@ -61,8 +61,8 @@ export function verifyAdminSessionToken(token: string | undefined): boolean {
   }
 }
 
-export function isAdminAuthenticatedFromCookies(): boolean {
-  const cookieStore = cookies();
+export async function isAdminAuthenticatedFromCookies(): Promise<boolean> {
+  const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
   return verifyAdminSessionToken(token);
 }

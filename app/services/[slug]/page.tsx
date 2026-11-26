@@ -12,9 +12,10 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const service = await getServiceBySlug(params.slug);
+  const { slug } = await params;
+  const service = await getServiceBySlug(slug);
   if (!service) return { title: 'Service Not Found' };
 
   return {
@@ -31,10 +32,11 @@ export async function generateMetadata({
 export default async function ServiceDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
   const [service, settings] = await Promise.all([
-    getServiceBySlug(params.slug),
+    getServiceBySlug(slug),
     getBusinessSettings(),
   ]);
 

@@ -8,14 +8,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ivory: 'var(--color-ivory)',
-        cream: 'var(--color-cream)',
-        beige: 'var(--color-beige)',
-        sand: 'var(--color-sand)',
-        taupe: 'var(--color-taupe)',
-        mocha: 'var(--color-mocha)',
-        espresso: 'var(--color-espresso)',
-        muted: 'var(--color-muted)',
+        ivory: '#F6F1E9',
+        cream: '#F4EFE7',
+        beige: '#E5D7C7',
+        sand: '#C4AE98',
+        taupe: '#A58D76',
+        mocha: '#79604D',
+        espresso: '#332821',
+        muted: '#82776D',
         bronze: '#A8895C',
       },
       fontFamily: {
