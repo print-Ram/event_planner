@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import SiteShell from '@/components/layout/SiteShell';
 import { getBusinessSettings } from '@/lib/data/repository';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'About Our Studio',

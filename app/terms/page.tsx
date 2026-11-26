@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import SiteShell from '@/components/layout/SiteShell';
 import { getBusinessSettings } from '@/lib/data/repository';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions',

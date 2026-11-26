@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
 import { isAdminAuthenticatedFromCookies } from '@/lib/security/rateLimit';
 import {
@@ -102,6 +103,7 @@ export async function POST(request: Request) {
     switch (resource) {
       case 'settings': {
         const updated = await saveBusinessSettings(payload as Partial<BusinessSettings>);
+        revalidatePath('/', 'layout');
         return NextResponse.json({ ok: true, data: updated });
       }
       case 'passcode': {
@@ -161,16 +163,19 @@ export async function POST(request: Request) {
           created_at: String(payload.created_at || new Date().toISOString()),
         };
         const saved = await upsertService(item);
+        revalidatePath('/', 'layout');
         return NextResponse.json({ ok: true, data: saved });
       }
       case 'package': {
         const pkg = payload as unknown as PackageTier;
         const saved = await upsertPackage(pkg);
+        revalidatePath('/', 'layout');
         return NextResponse.json({ ok: true, data: saved });
       }
       case 'pricing_rule': {
         const rule = payload as unknown as PricingRule;
         const saved = await upsertPricingRule(rule);
+        revalidatePath('/', 'layout');
         return NextResponse.json({ ok: true, data: saved });
       }
       case 'portfolio': {
@@ -203,11 +208,13 @@ export async function POST(request: Request) {
           display_order: Number(payload.display_order || 0),
         };
         const saved = await upsertPortfolioProject(project);
+        revalidatePath('/', 'layout');
         return NextResponse.json({ ok: true, data: saved });
       }
       case 'testimonial': {
         if (action === 'delete') {
           await deleteTestimonial(String(payload.id));
+          revalidatePath('/', 'layout');
           return NextResponse.json({ ok: true });
         }
         const review: TestimonialRecord = {
@@ -223,6 +230,7 @@ export async function POST(request: Request) {
           created_at: String(payload.created_at || new Date().toISOString()),
         };
         const saved = await upsertTestimonial(review);
+        revalidatePath('/', 'layout');
         return NextResponse.json({ ok: true, data: saved });
       }
       case 'availability': {

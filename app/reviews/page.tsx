@@ -5,7 +5,7 @@ import { ExternalLink, Quote, Star } from 'lucide-react';
 import SiteShell from '@/components/layout/SiteShell';
 import { getTestimonials } from '@/lib/data/repository';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Client Reviews',

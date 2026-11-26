@@ -7,7 +7,7 @@ import SiteShell from '@/components/layout/SiteShell';
 import { getBusinessSettings, getServiceBySlug } from '@/lib/data/repository';
 import { formatCurrency } from '@/lib/utils';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,

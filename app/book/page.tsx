@@ -10,7 +10,7 @@ import {
 } from '@/lib/data/repository';
 import { getUnavailableDatesList } from '@/lib/availability/checker';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 15;
 
 export const metadata: Metadata = {
   title: 'Request a Booking',

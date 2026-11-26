@@ -17,7 +17,7 @@ import {
 } from '@/lib/data/repository';
 import { getInstagramFeed } from '@/lib/instagram/service';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function HomePage() {
   const [settings, services, portfolio, reviews, instagramFeed] = await Promise.all([

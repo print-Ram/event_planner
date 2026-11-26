@@ -4,7 +4,7 @@ import SiteShell from '@/components/layout/SiteShell';
 import PortfolioGrid from '@/components/portfolio/PortfolioGrid';
 import { getPortfolioProjects } from '@/lib/data/repository';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Portfolio',

@@ -25,11 +25,65 @@ import type { BookingRecord, EnquiryRecord } from '@/types/booking';
 import type { EstimateRecord, PackageTier, PricingRule } from '@/types/pricing';
 import type { ServiceItem } from '@/types/service';
 
+// In-memory TTL cache + in-flight request deduplication for blazing-fast route transitions
+interface CacheEntry<T> {
+  value: T;
+  expiresAt: number;
+}
+
+const repoCache = new Map<string, CacheEntry<unknown>>();
+const inflightRequests = new Map<string, Promise<unknown>>();
+
+const PUBLIC_TTL_MS = 60_000;
+const AVAILABILITY_TTL_MS = 10_000;
+
+async function cachedFetch<T>(
+  key: string,
+  ttlMs: number,
+  loader: () => Promise<T>
+): Promise<T> {
+  const now = Date.now();
+  const cached = repoCache.get(key) as CacheEntry<T> | undefined;
+  if (cached && cached.expiresAt > now) {
+    return cached.value;
+  }
+
+  const inflight = inflightRequests.get(key) as Promise<T> | undefined;
+  if (inflight) {
+    return inflight;
+  }
+
+  const promise = loader()
+    .then((result) => {
+      repoCache.set(key, { value: result, expiresAt: Date.now() + ttlMs });
+      return result;
+    })
+    .finally(() => {
+      inflightRequests.delete(key);
+    });
+
+  inflightRequests.set(key, promise);
+  return promise;
+}
+
+export function invalidateRepoCache(keyPrefix?: string): void {
+  if (!keyPrefix) {
+    repoCache.clear();
+    return;
+  }
+  for (const key of repoCache.keys()) {
+    if (key.startsWith(keyPrefix)) {
+      repoCache.delete(key);
+    }
+  }
+}
+
 // Helper for Firebase RTDB REST access (works in Next.js server routes & preserves existing backend)
-async function fbGet<T>(path: string): Promise<T | null> {
+async function fbGet<T>(path: string, noStore = false): Promise<T | null> {
   try {
     const res = await fetch(`${FIREBASE_DATABASE_URL}/${path}.json`, {
-      cache: 'no-store',
+      ...(noStore ? { cache: 'no-store' as const } : { next: { revalidate: 60 } }),
+      signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return null;
     return (await res.json()) as T | null;
@@ -88,23 +142,29 @@ function recordMapToArray<T extends { id?: string }>(
 
 // ─── Business Settings ───────────────────────────────────────────────────────
 export async function getBusinessSettings(): Promise<BusinessSettings> {
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const { data } = await sb
-        .from('business_settings')
-        .select('*')
-        .eq('id', 'default')
-        .maybeSingle();
-      if (data) return { ...DEFAULT_BUSINESS_SETTINGS, ...data };
+  return cachedFetch('settings', PUBLIC_TTL_MS, async () => {
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('business_settings')
+            .select('*')
+            .eq('id', 'default')
+            .maybeSingle();
+          if (data) return { ...DEFAULT_BUSINESS_SETTINGS, ...data };
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
 
-  const fb = await fbGet<Partial<BusinessSettings>>('site_content/settings');
-  if (fb) {
-    return { ...DEFAULT_BUSINESS_SETTINGS, ...fb };
-  }
-  return DEFAULT_BUSINESS_SETTINGS;
+    const fb = await fbGet<Partial<BusinessSettings>>('site_content/settings');
+    if (fb) {
+      return { ...DEFAULT_BUSINESS_SETTINGS, ...fb };
+    }
+    return DEFAULT_BUSINESS_SETTINGS;
+  });
 }
 
 export async function saveBusinessSettings(
@@ -122,36 +182,48 @@ export async function saveBusinessSettings(
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('business_settings').upsert(next);
+      invalidateRepoCache('settings');
       return next;
     }
   }
 
   await fbPut('site_content/settings', next);
+  invalidateRepoCache('settings');
   return next;
 }
 
 // ─── Services ────────────────────────────────────────────────────────────────
 export async function getServices(includeInactive = false): Promise<ServiceItem[]> {
-  let list: ServiceItem[] = [];
+  const list = await cachedFetch('services', PUBLIC_TTL_MS, async () => {
+    let items: ServiceItem[] = [];
 
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const query = sb.from('services').select('*').order('display_order', { ascending: true });
-      const { data } = await query;
-      if (data && data.length > 0) {
-        list = data as ServiceItem[];
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('services')
+            .select('*')
+            .order('display_order', { ascending: true });
+          if (data && data.length > 0) {
+            items = data as ServiceItem[];
+          }
+        } catch {
+          // fall back cleanly
+        }
       }
     }
-  }
 
-  if (list.length === 0) {
-    const fb = await fbGet<Record<string, ServiceItem>>('site_content/studio_services');
-    const fbList = recordMapToArray(fb);
-    list = fbList.length > 0 ? fbList : SEED_SERVICES;
-  }
+    if (items.length === 0) {
+      const fb = await fbGet<Record<string, ServiceItem>>('site_content/studio_services');
+      const fbList = recordMapToArray(fb);
+      items = fbList.length > 0 ? fbList : SEED_SERVICES;
+    }
 
-  list.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    items.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    return items;
+  });
+
   return includeInactive ? list : list.filter((s) => s.active);
 }
 
@@ -168,10 +240,12 @@ export async function upsertService(service: ServiceItem): Promise<ServiceItem> 
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('services').upsert(service);
+      invalidateRepoCache('services');
       return service;
     }
   }
   await fbPut(`site_content/studio_services/${service.id}`, service);
+  invalidateRepoCache('services');
   return service;
 }
 
@@ -180,31 +254,41 @@ export async function deleteService(id: string): Promise<void> {
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('services').delete().eq('id', id);
+      invalidateRepoCache('services');
       return;
     }
   }
   await fbDelete(`site_content/studio_services/${id}`);
+  invalidateRepoCache('services');
 }
 
 // ─── Packages & Pricing Rules ────────────────────────────────────────────────
 export async function getPackages(includeInactive = false): Promise<PackageTier[]> {
-  let list: PackageTier[] = [];
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const { data } = await sb
-        .from('packages')
-        .select('*')
-        .order('display_order', { ascending: true });
-      if (data && data.length > 0) list = data as PackageTier[];
+  const list = await cachedFetch('packages', PUBLIC_TTL_MS, async () => {
+    let items: PackageTier[] = [];
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('packages')
+            .select('*')
+            .order('display_order', { ascending: true });
+          if (data && data.length > 0) items = data as PackageTier[];
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
-  if (list.length === 0) {
-    const fb = await fbGet<Record<string, PackageTier>>('site_content/packages');
-    const fbList = recordMapToArray(fb);
-    list = fbList.length > 0 ? fbList : SEED_PACKAGES;
-  }
-  list.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    if (items.length === 0) {
+      const fb = await fbGet<Record<string, PackageTier>>('site_content/packages');
+      const fbList = recordMapToArray(fb);
+      items = fbList.length > 0 ? fbList : SEED_PACKAGES;
+    }
+    items.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    return items;
+  });
+
   return includeInactive ? list : list.filter((p) => p.active);
 }
 
@@ -213,27 +297,37 @@ export async function upsertPackage(pkg: PackageTier): Promise<PackageTier> {
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('packages').upsert(pkg);
+      invalidateRepoCache('packages');
       return pkg;
     }
   }
   await fbPut(`site_content/packages/${pkg.id}`, pkg);
+  invalidateRepoCache('packages');
   return pkg;
 }
 
 export async function getPricingRules(includeInactive = false): Promise<PricingRule[]> {
-  let list: PricingRule[] = [];
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const { data } = await sb.from('pricing_rules').select('*');
-      if (data && data.length > 0) list = data as PricingRule[];
+  const list = await cachedFetch('pricing_rules', PUBLIC_TTL_MS, async () => {
+    let items: PricingRule[] = [];
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb.from('pricing_rules').select('*');
+          if (data && data.length > 0) items = data as PricingRule[];
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
-  if (list.length === 0) {
-    const fb = await fbGet<Record<string, PricingRule>>('site_content/pricing_rules');
-    const fbList = recordMapToArray(fb);
-    list = fbList.length > 0 ? fbList : SEED_PRICING_RULES;
-  }
+    if (items.length === 0) {
+      const fb = await fbGet<Record<string, PricingRule>>('site_content/pricing_rules');
+      const fbList = recordMapToArray(fb);
+      items = fbList.length > 0 ? fbList : SEED_PRICING_RULES;
+    }
+    return items;
+  });
+
   return includeInactive ? list : list.filter((r) => r.active);
 }
 
@@ -242,10 +336,12 @@ export async function upsertPricingRule(rule: PricingRule): Promise<PricingRule>
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('pricing_rules').upsert(rule);
+      invalidateRepoCache('pricing_rules');
       return rule;
     }
   }
   await fbPut(`site_content/pricing_rules/${rule.id}`, rule);
+  invalidateRepoCache('pricing_rules');
   return rule;
 }
 
@@ -253,23 +349,31 @@ export async function upsertPricingRule(rule: PricingRule): Promise<PricingRule>
 export async function getPortfolioProjects(
   includeUnpublished = false
 ): Promise<PortfolioProject[]> {
-  let list: PortfolioProject[] = [];
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const { data } = await sb
-        .from('portfolio_projects')
-        .select('*')
-        .order('display_order', { ascending: true });
-      if (data && data.length > 0) list = data as PortfolioProject[];
+  const list = await cachedFetch('portfolio', PUBLIC_TTL_MS, async () => {
+    let items: PortfolioProject[] = [];
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('portfolio_projects')
+            .select('*')
+            .order('display_order', { ascending: true });
+          if (data && data.length > 0) items = data as PortfolioProject[];
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
-  if (list.length === 0) {
-    const fb = await fbGet<Record<string, PortfolioProject>>('site_content/portfolio');
-    const fbList = recordMapToArray(fb);
-    list = fbList.length > 0 ? fbList : SEED_PORTFOLIO_PROJECTS;
-  }
-  list.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    if (items.length === 0) {
+      const fb = await fbGet<Record<string, PortfolioProject>>('site_content/portfolio');
+      const fbList = recordMapToArray(fb);
+      items = fbList.length > 0 ? fbList : SEED_PORTFOLIO_PROJECTS;
+    }
+    items.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    return items;
+  });
+
   return includeUnpublished ? list : list.filter((p) => p.published);
 }
 
@@ -285,10 +389,12 @@ export async function upsertPortfolioProject(
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('portfolio_projects').upsert(project);
+      invalidateRepoCache('portfolio');
       return project;
     }
   }
   await fbPut(`site_content/portfolio/${project.id}`, project);
+  invalidateRepoCache('portfolio');
   return project;
 }
 
@@ -297,33 +403,43 @@ export async function deletePortfolioProject(id: string): Promise<void> {
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('portfolio_projects').delete().eq('id', id);
+      invalidateRepoCache('portfolio');
       return;
     }
   }
   await fbDelete(`site_content/portfolio/${id}`);
+  invalidateRepoCache('portfolio');
 }
 
 // ─── Testimonials / Reviews ──────────────────────────────────────────────────
 export async function getTestimonials(
   includeUnpublished = false
 ): Promise<TestimonialRecord[]> {
-  let list: TestimonialRecord[] = [];
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const { data } = await sb
-        .from('testimonials')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (data) list = data as TestimonialRecord[];
+  const list = await cachedFetch('testimonials', PUBLIC_TTL_MS, async () => {
+    let items: TestimonialRecord[] = [];
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('testimonials')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (data) items = data as TestimonialRecord[];
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
-  if (list.length === 0) {
-    const fb = await fbGet<Record<string, TestimonialRecord>>('site_content/testimonials');
-    list = recordMapToArray(fb);
-    if (list.length === 0) list = SEED_TESTIMONIALS;
-  }
-  list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    if (items.length === 0) {
+      const fb = await fbGet<Record<string, TestimonialRecord>>('site_content/testimonials');
+      items = recordMapToArray(fb);
+      if (items.length === 0) items = SEED_TESTIMONIALS;
+    }
+    items.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return items;
+  });
+
   return includeUnpublished ? list : list.filter((t) => t.published);
 }
 
@@ -334,10 +450,12 @@ export async function upsertTestimonial(
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('testimonials').upsert(testimonial);
+      invalidateRepoCache('testimonials');
       return testimonial;
     }
   }
   await fbPut(`site_content/testimonials/${testimonial.id}`, testimonial);
+  invalidateRepoCache('testimonials');
   return testimonial;
 }
 
@@ -346,10 +464,12 @@ export async function deleteTestimonial(id: string): Promise<void> {
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('testimonials').delete().eq('id', id);
+      invalidateRepoCache('testimonials');
       return;
     }
   }
   await fbDelete(`site_content/testimonials/${id}`);
+  invalidateRepoCache('testimonials');
 }
 
 // ─── Enquiries & Estimates ───────────────────────────────────────────────────
@@ -365,11 +485,11 @@ export async function getEnquiries(): Promise<EnquiryRecord[]> {
     }
   }
 
-  const fbEnquiries = await fbGet<Record<string, EnquiryRecord>>('enquiries');
+  const fbEnquiries = await fbGet<Record<string, EnquiryRecord>>('enquiries', true);
   const list = recordMapToArray(fbEnquiries);
 
   // Also merge legacy `quotes` collection so prior inquiries remain visible in Admin
-  const legacyQuotes = await fbGet<Record<string, Record<string, unknown>>>('quotes');
+  const legacyQuotes = await fbGet<Record<string, Record<string, unknown>>>('quotes', true);
   if (legacyQuotes) {
     for (const [key, q] of Object.entries(legacyQuotes)) {
       const id = String(q.id || key);
@@ -445,20 +565,26 @@ export async function createEstimate(estimate: EstimateRecord): Promise<Estimate
 
 // ─── Bookings & Availability ─────────────────────────────────────────────────
 export async function getBookings(): Promise<BookingRecord[]> {
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient();
-    if (sb) {
-      const { data } = await sb
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (data) return data as BookingRecord[];
+  return cachedFetch('bookings', AVAILABILITY_TTL_MS, async () => {
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('bookings')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (data) return data as BookingRecord[];
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
-  const fb = await fbGet<Record<string, BookingRecord>>('bookings');
-  const list = recordMapToArray(fb);
-  list.sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return list;
+    const fb = await fbGet<Record<string, BookingRecord>>('bookings', true);
+    const list = recordMapToArray(fb);
+    list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return list;
+  });
 }
 
 export async function getPublicConfirmedBookingDates(): Promise<
@@ -475,10 +601,12 @@ export async function createBooking(booking: BookingRecord): Promise<BookingReco
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('bookings').insert(booking);
+      invalidateRepoCache('bookings');
       return booking;
     }
   }
   await fbPut(`bookings/${booking.id}`, booking);
+  invalidateRepoCache('bookings');
   return booking;
 }
 
@@ -500,28 +628,36 @@ export async function updateBooking(
         .eq('id', id)
         .select('*')
         .maybeSingle();
+      invalidateRepoCache('bookings');
       return (data as BookingRecord) || null;
     }
   }
 
   await fbPatch(`bookings/${id}`, nextUpdates);
-  const updated = await fbGet<BookingRecord>(`bookings/${id}`);
+  invalidateRepoCache('bookings');
+  const updated = await fbGet<BookingRecord>(`bookings/${id}`, true);
   return updated;
 }
 
 export async function getAvailabilitySlots(): Promise<AvailabilitySlot[]> {
-  if (isSupabaseServerConfigured()) {
-    const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
-    if (sb) {
-      const { data } = await sb
-        .from('availability')
-        .select('*')
-        .order('date', { ascending: true });
-      if (data) return data as AvailabilitySlot[];
+  return cachedFetch('availability', AVAILABILITY_TTL_MS, async () => {
+    if (isSupabaseServerConfigured()) {
+      const sb = getSupabaseAdminClient() || getSupabasePublicServerClient();
+      if (sb) {
+        try {
+          const { data } = await sb
+            .from('availability')
+            .select('*')
+            .order('date', { ascending: true });
+          if (data) return data as AvailabilitySlot[];
+        } catch {
+          // fall back cleanly
+        }
+      }
     }
-  }
-  const fb = await fbGet<Record<string, AvailabilitySlot>>('availability');
-  return recordMapToArray(fb).sort((a, b) => a.date.localeCompare(b.date));
+    const fb = await fbGet<Record<string, AvailabilitySlot>>('availability', true);
+    return recordMapToArray(fb).sort((a, b) => a.date.localeCompare(b.date));
+  });
 }
 
 export async function upsertAvailabilitySlot(
@@ -531,10 +667,12 @@ export async function upsertAvailabilitySlot(
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('availability').upsert(slot, { onConflict: 'date' });
+      invalidateRepoCache('availability');
       return slot;
     }
   }
   await fbPut(`availability/${slot.id}`, slot);
+  invalidateRepoCache('availability');
   return slot;
 }
 
@@ -543,10 +681,12 @@ export async function deleteAvailabilitySlot(id: string): Promise<void> {
     const sb = getSupabaseAdminClient();
     if (sb) {
       await sb.from('availability').delete().eq('id', id);
+      invalidateRepoCache('availability');
       return;
     }
   }
   await fbDelete(`availability/${id}`);
+  invalidateRepoCache('availability');
 }
 
 // ─── Server Admin Verification ───────────────────────────────────────────────
@@ -554,7 +694,7 @@ export async function verifyServerAdminPasscode(passcode: string): Promise<boole
   const envPass = process.env.ADMIN_PASSCODE;
   if (envPass && passcode.trim() === envPass.trim()) return true;
 
-  const fbPass = await fbGet<string>('admin_config/passcode');
+  const fbPass = await fbGet<string>('admin_config/passcode', true);
   const expected = fbPass ? String(fbPass).trim() : DEFAULT_ADMIN_PASSCODE;
   return passcode.trim() === expected;
 }

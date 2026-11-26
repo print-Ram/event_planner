@@ -8,7 +8,7 @@ import {
   getPricingRules,
 } from '@/lib/data/repository';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Event Cost Estimator',

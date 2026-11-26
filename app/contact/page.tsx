@@ -6,7 +6,7 @@ import ContactForm from '@/components/forms/ContactForm';
 import { getBusinessSettings } from '@/lib/data/repository';
 import { buildWhatsAppUrl } from '@/lib/utils';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Contact',

@@ -4,7 +4,7 @@ import SiteShell from '@/components/layout/SiteShell';
 import ServicesCatalog from '@/components/services/ServicesCatalog';
 import { getBusinessSettings, getServices } from '@/lib/data/repository';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Services',
